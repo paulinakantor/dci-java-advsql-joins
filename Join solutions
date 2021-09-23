@@ -1,0 +1,162 @@
+Join solutions
+
+3TU = 3 * 45 min = 135 min = 2h 15 min
+
+1. Select all product names for suppliers from USA. 
+Time: ~ 10 min
+Level of Difficulty: low
+
+
+Solution:
+
+SELECT p.product_name FROM products p
+left join suppliers s
+on p.supplier_id  = s.supplier_id 
+where s.country = 'USA';
+
+
+2. Select order id, order date, employee first and last namee for employee whose last name starts with 'D' and for order that was shipped to Germany.
+Time: ~ 15 min
+Level of Difficulty: low
+
+
+Solution:
+
+select o.order_id, o.order_date, e.first_name, e.last_name from orders o 
+left join employees e 
+on o.employee_id  = e.employee_id
+where e.last_name like 'D%'
+and o.ship_country = 'Germany';
+
+
+3. Select all orders shipped by United Package for orders soner than '1996-08-12'
+Time: ~ 10 min
+Level of Difficulty: low
+
+Solution:
+
+
+select o.order_date, s.company_name from orders o 
+left join shippers s 
+on o.ship_via  = s.shipper_id 
+where s.company_name = 'United Package'
+and o.order_date < '1996-08-12'
+
+4. Select shippers company name that doesnt have any orders assigned
+Time: ~ 15 min
+Level of Difficulty: medium
+
+Solution:
+
+select s.company_name from orders o 
+right join shippers s
+on s.shipper_id = o.ship_via
+where o.order_id is null;
+
+5. Select order ids that contains product from category 'Beverages' ordered '1996-08-14' 
+Time: ~ 20 min
+Level of Difficulty: medium
+
+Solution:
+
+select distinct (o.order_id) from orders o 
+left join order_details od 
+on o.order_id = od.order_id 
+left join products p 
+on od.product_id = p.product_id 
+left join categories c 
+on p.category_id  = c.category_id 
+where c.category_name = 'Beverages'
+and order_date = '1996-08-14'
+
+
+
+6. Select product names and availability of products supplied by 'Lyngbysild' from category 'Seafood'
+Time: ~ 20 min
+Level of Difficulty: medium
+
+Solution:
+
+select p.product_name from products p 
+left join suppliers s 
+on p.supplier_id = s.supplier_id 
+left join categories c 
+on p.category_id  = c.category_id 
+where s.company_name = 'Lyngbysild'
+and c.category_name = 'Seafood';
+
+
+7. Select last names of employees assigned to 'Northern' region
+Time: ~ 20 min
+Level of Difficulty: medium
+
+Solution:
+
+
+select distinct e.last_name from employees e 
+left join employee_territories et 
+on e.employee_id = et.employee_id 
+left join territories t 
+on t.territory_id  = et.territory_id 
+left join region r 
+on r.region_id = t.region_id 
+where r.region_description = 'Northern'
+
+
+
+8. Select employee id and his boss last name for those who have orders with date later than '1996-07-18'.
+if an employee doesn't have a boss don't include him.
+
+Time: ~ 30 min
+Level of Difficulty: hard
+
+
+Solution:
+
+select distinct (e.employee_id), e.first_name, e.last_name , e2.last_name as boss_last_name from employees e 
+right join employees e2 
+on e.reports_to = e2.employee_id
+left join orders o 
+on o.employee_id = e.employee_id 
+where o.order_date > '1996-07-18'
+order by e.employee_id;
+ 
+
+9. List the employees in the warehouse with orders that are not shipped yet.
+
+Time: ~ 10 min
+Level of Difficulty: low
+
+select distinct e.employee_id, e.first_name, e.last_name, o.* from employees e 
+left join orders o 
+on e.employee_id  = o.employee_id 
+where o.shipped_date  is null;
+
+
+10. Calculate the price for each product with its name in each order after discount is applied. 
+Advanced: Use round() and cast() functions to round the discounted price to 2 decimal places.
+
+Time: ~ 15/25 min
+Level of Difficulty: medium/hard
+
+Basic solution:
+
+SELECT DISTINCT 
+	od.*,
+    p.product_name, 
+    od.unit_price * od.quantity * (1 - od.discount) AS price_after_discount
+FROM products p 
+LEFT JOIN order_details od 
+ON p.product_id = od.product_id 
+
+Advanced solution:
+
+SELECT DISTINCT 
+	od.*, 
+    p.product_name, 
+    ROUND(CAST(FLOAT8(od.unit_price * od.quantity * (1 - od.discount)) AS NUMERIC),2) AS price_after_discount
+FROM products p 
+LEFT JOIN order_details od 
+ON p.product_id = od.product_id 
+
+
